@@ -4,6 +4,8 @@ import time
 import requests
 
 from utils.MySQL_utils import MySQL
+from utils.quality_of_life_utils import QOL
+
 
 def get_all_active_auctions():
     total_pages: int = get_new_auctions(page=0)["totalPages"]
@@ -34,12 +36,9 @@ def insert_item_into_sql_if_it_is_interesting(auction):
                                                         auction_id=auction["uuid"],
                                                         item_name=auction["item_name"].replace("'", "`"),
                                                         price=auction["starting_bid"],
-                                                        start_time=epoch_to_datetime_from_miliseconds(auction["start"]),
-                                                        end_time=epoch_to_datetime_from_miliseconds(auction["end"]))
-
-
-def get_epoch_time():
-    return round(time.time() * 1000 - 10000)
+                                                        start_time=QOL.epoch_to_datetime_from_miliseconds(auction["start"]),
+                                                        end_time=QOL.epoch_to_datetime_from_miliseconds(auction["end"]),
+                                                        item_bytes=auction["item_bytes"])
 
 
 def is_auction_new(last_checked_auction: datetime, new_auction: datetime):
@@ -48,10 +47,6 @@ def is_auction_new(last_checked_auction: datetime, new_auction: datetime):
 
 def is_item_interesting(auction):
     return auction["bin"] is True and auction["starting_bid"] >= 100000
-
-
-def epoch_to_datetime_from_miliseconds(epoch: int):
-    return datetime.datetime.fromtimestamp(epoch/1000)
 
 
 connection = MySQL.Functions.connect_to_skyblock_database()
@@ -68,10 +63,10 @@ while True:
 
     if current_auctions["success"]:
         for auction in current_auctions["auctions"]:
-            auction_start_date = epoch_to_datetime_from_miliseconds(auction["start"])
+            auction_start_date = QOL.epoch_to_datetime_from_miliseconds(auction["start"])
             if is_auction_new(time_of_last_checked_item, auction_start_date):
                 insert_item_into_sql_if_it_is_interesting(auction)
             else:
                 break
-        time_of_last_checked_item = epoch_to_datetime_from_miliseconds(current_auctions["auctions"][0]["start"])
+        time_of_last_checked_item = QOL.epoch_to_datetime_from_miliseconds(current_auctions["auctions"][0]["start"])
     time.sleep(1.5)
