@@ -51,7 +51,9 @@ def get_all_recently_ended_auctions():
 connection = MySQL.Functions.connect_to_skyblock_database()
 
 while True:
+    print("getting new ended auctions...")
     active_auctions = MySQL.Functions.get_active_auctions_table(connection)
+    print(len(active_auctions))
     ended_auctions = get_interesting_recently_ended_auctions()
 
     for ended_auction in ended_auctions:
@@ -69,11 +71,11 @@ while True:
                 print("item sold")
 
                 MySQL.Functions.delete_finished_auction_from_active_auctions(connection, active_auction.auction_id)
-
-    for active_auction in active_auctions:
-        if active_auction.end_date < datetime.datetime.now():
-            print(active_auction.end_date)
-            MySQL.Functions.delete_finished_auction_from_active_auctions(connection, active_auction.auction_id)
+    if len(active_auctions) >= 1:
+        for active_auction in active_auctions:
+            if active_auction.end_date < datetime.datetime.now():
+                print(active_auction.end_date)
+                MySQL.Functions.delete_finished_auction_from_active_auctions(connection, active_auction.auction_id)
     time.sleep(30)
 
 

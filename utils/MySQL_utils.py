@@ -106,6 +106,5 @@ class MySQL:
             try:
                 cursor.execute(query)
                 connection.commit()
-                print("Query successful")
             except Error as err:
                 print(f"Error: '{err}'")
