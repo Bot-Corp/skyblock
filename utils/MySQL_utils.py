@@ -17,6 +17,11 @@ class MySQL:
             end_date: datetime
             item_bytes: str
 
+        @dataclass
+        class FinishedAuctionItem(ActiveAuctionItem):
+            buyer: str
+            seller: str
+
     class Functions:
 
         @classmethod
