@@ -15,7 +15,8 @@ class MySQL:
             price: int
             start_date: datetime
             end_date: datetime
-            item_bytes: str
+            extra_info: str
+            amount: int
 
         @dataclass
         class FinishedAuctionItem(ActiveAuctionItem):
@@ -55,21 +56,20 @@ class MySQL:
 
         @classmethod
         def insert_active_auction_item_data(cls, connection, auction_id: str, item_name: str, price: int, start_time: datetime,
-                                            end_time: datetime, item_bytes: str):
-            insert_query = f"INSERT INTO active_auctions VALUES('{auction_id}', '{item_name}', {price}, '{start_time}', '{end_time}', '{item_bytes}');"
+                                            end_time: datetime, extra_info: str, amount: int):
+            insert_query = f"INSERT INTO active_auctions VALUES('{auction_id}', '{item_name}', {price}, '{start_time}', '{end_time}', '{extra_info}', '{amount}');"
             cls.execute_query(connection, insert_query)
 
         @classmethod
-        def insert_finised_auction_item_data(cls, connection, auction_id: str, item_name: str, price: int, start_time: datetime,
-                                             end_time: datetime, buyer: str, seller_profile: str, item_bytes: str):
-            insert_query = f"INSERT INTO finished_auctions VALUES('{auction_id}', '{item_name}', {price}, '{start_time}', '{end_time}', '{buyer}', '{seller_profile}', '{item_bytes}');"
+        def insert_finished_auction_item_data(cls, connection, auction_id: str, item_name: str, price: int, start_time: datetime,
+                                              end_time: datetime, buyer: str, seller_profile: str, extra_info: str, amount: int):
+            insert_query = f"INSERT INTO finished_auctions VALUES('{auction_id}', '{item_name}', {price}, '{start_time}', '{end_time}', '{buyer}', '{seller_profile}', '{extra_info}', {amount});"
             cls.execute_query(connection, insert_query)
 
         @classmethod
         def delete_all_active_auctions_records(cls, connection):
             delete_query = "DELETE FROM active_auctions;"
             cls.execute_query(connection, delete_query)
-
 
         @classmethod
         def delete_finished_auction_from_active_auctions(cls, connection, auction_id):
@@ -89,7 +89,29 @@ class MySQL:
                     price=item[2],
                     start_date=item[3],
                     end_date=item[4],
-                    item_bytes=item[5]
+                    extra_info=item[5],
+                    amount=item[6]
+                ))
+
+            return list_of_items
+
+        @classmethod
+        def get_finished_auctions_table(cls, connection):
+            select_query = "SELECT * FROM finished_auctions;"
+            items: List[List] = cls.read_query(connection, select_query)
+
+            list_of_items = []
+            for item in items:
+                list_of_items.append(MySQL.Objects.FinishedAuctionItem(
+                    auction_id=item[0],
+                    item_name=item[1],
+                    price=item[2],
+                    start_date=item[3],
+                    end_date=item[4],
+                    buyer=item[5],
+                    seller=item[6],
+                    extra_info=item[7],
+                    amount=item[8]
                 ))
 
             return list_of_items

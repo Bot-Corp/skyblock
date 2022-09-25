@@ -4,6 +4,7 @@ import time
 import requests
 
 from utils.MySQL_utils import MySQL
+from utils.auction_hause_utils import AuctionHouse
 from utils.quality_of_life_utils import QOL
 
 
@@ -51,13 +52,15 @@ def get_new_auctions(page: int):
 def insert_item_into_sql_if_it_is_interesting(auction):
     if is_item_interesting(auction):
         print(auction["item_name"], "coins:", auction["starting_bid"])
-        MySQL.Functions.insert_active_auction_item_data(connection,
-                                                        auction_id=auction["uuid"],
-                                                        item_name=auction["item_name"].replace("'", "`"),
-                                                        price=auction["starting_bid"],
-                                                        start_time=QOL.epoch_to_datetime_from_miliseconds(auction["start"]),
-                                                        end_time=QOL.epoch_to_datetime_from_miliseconds(auction["end"]),
-                                                        item_bytes=auction["item_bytes"])
+        MySQL.Functions.insert_active_auction_item_data(
+            connection,
+            auction_id=auction["uuid"],
+            item_name=AuctionHouse.Pets.add_pet_rarity_to_name_if_item_is_a_pet(auction["item_name"].replace("'", "`"), auction["item_bytes"]),
+            price=auction["starting_bid"],
+            start_time=QOL.epoch_to_datetime_from_miliseconds(auction["start"]),
+            end_time=QOL.epoch_to_datetime_from_miliseconds(auction["end"]),
+            extra_info=AuctionHouse.get_extra_info_from_item_bytes(auction["item_bytes"]),
+            amount=AuctionHouse.get_item_count_from_item_bytes(auction["item_bytes"]))
 
 
 def is_auction_new(last_checked_auction: datetime, new_auction: datetime):

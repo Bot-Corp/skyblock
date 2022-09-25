@@ -59,15 +59,17 @@ while True:
     for ended_auction in ended_auctions:
         for active_auction in active_auctions:
             if ended_auction.auction_id == active_auction.auction_id:
-                MySQL.Functions.insert_finised_auction_item_data(connection,
-                                                                 auction_id=ended_auction.auction_id,
-                                                                 item_name=active_auction.item_name,
-                                                                 price=ended_auction.price,
-                                                                 start_time=active_auction.start_date,
-                                                                 end_time=ended_auction.end_time,
-                                                                 buyer=ended_auction.buyer,
-                                                                 seller_profile=ended_auction.seller_profile,
-                                                                 item_bytes=ended_auction.item_bytes)
+                MySQL.Functions.insert_finished_auction_item_data(
+                    connection,
+                    auction_id=ended_auction.auction_id,
+                    item_name=active_auction.item_name,
+                    price=ended_auction.price,
+                    start_time=active_auction.start_date,
+                    end_time=ended_auction.end_time,
+                    buyer=ended_auction.buyer,
+                    seller_profile=ended_auction.seller_profile,
+                    extra_info=active_auction.extra_info,
+                    amount=active_auction.amount)
                 print("item sold")
 
                 MySQL.Functions.delete_finished_auction_from_active_auctions(connection, active_auction.auction_id)
