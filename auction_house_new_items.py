@@ -4,7 +4,7 @@ import time
 import requests
 
 from utils.MySQL_utils import MySQL
-from utils.auction_hause_utils import AuctionHouse
+from utils.auction_house_utils import AuctionHouse
 from utils.quality_of_life_utils import QOL
 
 

@@ -1,6 +1,6 @@
 import unittest
 
-from utils.auction_hause_utils import AuctionHouse
+from utils.auction_house_utils import AuctionHouse
 
 
 class AuctionHouseTests(unittest.TestCase):
