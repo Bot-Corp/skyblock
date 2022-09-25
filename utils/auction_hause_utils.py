@@ -131,23 +131,3 @@ class AuctionHouse:
                 except Exception as e:
                     print("ERROR:", e)
                     print(pet_info_str)
-
-        @staticmethod
-        def get_all_pets_queries(connection) -> List[MySQL.Objects.FinishedAuctionItem]:
-            all_pets_query = "SELECT * from finished_auctions WHERE item_name LIKE '[Lvl%';"
-            all_pets = MySQL.Functions.read_query(connection, all_pets_query)
-
-            list_of_items = []
-            for item in all_pets:
-                list_of_items.append(MySQL.Objects.FinishedAuctionItem(
-                    auction_id=item[0],
-                    item_name=item[1],
-                    price=item[2],
-                    start_date=item[3],
-                    end_date=item[4],
-                    buyer=item[5],
-                    seller=item[6],
-                    item_bytes=item[7],
-                ))
-
-            return list_of_items
