@@ -55,7 +55,7 @@ def insert_item_into_sql_if_it_is_interesting(auction):
         MySQL.Functions.insert_active_auction_item_data(
             connection,
             auction_id=auction["uuid"],
-            item_name=AuctionHouse.Pets.add_pet_rarity_to_name_if_item_is_a_pet(auction["item_name"].replace("'", "`"), auction["item_bytes"]),
+            item_name=AuctionHouse.add_suffix_to_name_based_on_item_bytes(auction["item_name"].replace("'", "`"), auction["item_bytes"]),
             price=auction["starting_bid"],
             start_time=QOL.epoch_to_datetime_from_miliseconds(auction["start"]),
             end_time=QOL.epoch_to_datetime_from_miliseconds(auction["end"]),

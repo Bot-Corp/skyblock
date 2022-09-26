@@ -3,8 +3,6 @@ import io
 from typing import List
 
 import nbt as nbt
-
-from utils.MySQL_utils import MySQL
 from utils.quality_of_life_utils import QOL
 
 
@@ -23,11 +21,44 @@ class AuctionHouse:
         return item_count
 
     @classmethod
+    def add_suffix_to_name_based_on_item_bytes(cls, name: str, item_bytes: str) -> str:
+        if cls.Pets.is_item_a_pet_from_item_bytes(item_bytes):
+            return cls.Pets.add_pet_rarity_to_name_if_item_is_a_pet(name, item_bytes)
+
+        if cls.AttributeShard.is_item_a_attribute_shard(name):
+            return cls.AttributeShard.add_attribute_shard_enchant_to_name(name, item_bytes)
+
+        if cls.Enchants.is_item_enchanted(item_bytes):
+            return name + " Enchanted"
+        return name
+
+    class AttributeShard:
+        @classmethod
+        def is_item_a_attribute_shard(cls, name: str) -> bool:
+            return "Attribute Shard" in name
+
+        @classmethod
+        def add_attribute_shard_enchant_to_name(cls, name: str, item_bytes: str) -> str:
+            return name + " " + cls.__get_attribute_shard_enchant(item_bytes)
+
+        @classmethod
+        def __get_attribute_shard_enchant(cls, item_bytes) -> str:
+            data = AuctionHouse.decode_item_bytes_data(item_bytes)
+            attribute = data.split("TAG_Compound('attributes'): {1 Entries}")[1]
+            attribute = attribute.split("}")[0]
+            attribute = attribute.replace("{", "")
+            attribute = attribute.replace("TAG_Int('", "")
+            attribute = attribute.replace("'):", "")
+            attribute = attribute.strip()
+
+            return attribute.capitalize()
+
+    @classmethod
     def get_extra_info_from_item_bytes(cls, item_bytes) -> str:
-        if cls.Enchants.check_if_item_has_enchantments(item_bytes):
+        if cls.Enchants.is_item_enchanted(item_bytes):
             return cls.Enchants.get_item_enchantments_from_item_bytes(item_bytes)
 
-        if cls.Pets.check_if_item_is_a_pet_from_item_bytes(item_bytes):
+        if cls.Pets.is_item_a_pet_from_item_bytes(item_bytes):
             if cls.Pets.check_if_pet_has_a_held_item_from_item_bytes(item_bytes):
                 return cls.Pets.get_pet_held_item_from_item_bytes(item_bytes)
 
@@ -35,7 +66,7 @@ class AuctionHouse:
 
     class Enchants:
         @classmethod
-        def check_if_item_has_enchantments(cls, item_bytes) -> bool:
+        def is_item_enchanted(cls, item_bytes) -> bool:
             data = AuctionHouse.decode_item_bytes_data(item_bytes)
             if "TAG_Compound('enchantments'): {0 Entries}" in data:
                 return False
@@ -84,13 +115,13 @@ class AuctionHouse:
     class Pets:
         @classmethod
         def add_pet_rarity_to_name_if_item_is_a_pet(cls, name: str, item_bytes: str) -> str:
-            if cls.check_if_item_is_a_pet_from_item_bytes(item_bytes):
+            if cls.is_item_a_pet_from_item_bytes(item_bytes):
                 return name + " " + cls.get_pet_rarity_from_item_bytes(item_bytes)
 
             return name
 
         @classmethod
-        def check_if_item_is_a_pet_from_item_bytes(cls, item_bytes):
+        def is_item_a_pet_from_item_bytes(cls, item_bytes):
             data = AuctionHouse.decode_item_bytes_data(item_bytes)
             return "petInfo'):" in data
 
