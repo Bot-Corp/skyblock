@@ -9,21 +9,25 @@ from utils.quality_of_life_utils import QOL
 
 
 def reset_all_active_auctions(connection):
-    current_auctions = get_all_active_auctions()
     saved_active_auctions = MySQL.Functions.get_active_auctions_table(connection)
     saved_auctions_ids = []
 
     for row in saved_active_auctions:
         saved_auctions_ids.append(row.auction_id)
 
-    for active_auction in current_auctions:
-        if active_auction["uuid"] not in saved_auctions_ids:
-            insert_item_into_sql_if_it_is_interesting(active_auction)
-
+    total_pages: int = get_new_auctions(page=0)["totalPages"]
+    for i in range(total_pages):
+        print("page", i)
+        current_page = get_new_auctions(page=i)
+        if current_page["success"]:
+            for active_auction in current_page["auctions"]:
+                if active_auction["uuid"] not in saved_auctions_ids:
+                    insert_item_into_sql_if_it_is_interesting(active_auction)
+                    saved_auctions_ids.append(active_auction["uuid"])
+        time.sleep(1)
 
 def get_all_active_auctions():
     total_pages: int = get_new_auctions(page=0)["totalPages"]
-
 
     all_auctions = []
     used_auction_ids = []
@@ -35,7 +39,6 @@ def get_all_active_auctions():
                 if auction["uuid"] not in used_auction_ids:
                     all_auctions.append(auction)
                     used_auction_ids.append(auction["uuid"])
-        time.sleep(0.5)
 
     print(len(all_auctions))
     return all_auctions
@@ -77,7 +80,6 @@ MySQL.Functions.delete_all_active_auctions_records(connection)
 time_of_last_checked_item = datetime.datetime.now()
 time_of_next_auction_reset = datetime.datetime.now() - datetime.timedelta(hours=2)
 MySQL.Functions.delete_all_active_auctions_records(connection)
-
 while True:
     time_right_now = datetime.datetime.now()
     print("time right now:", time_right_now)
@@ -86,18 +88,27 @@ while True:
         reset_all_active_auctions(connection)
         time_of_next_auction_reset = time_right_now + datetime.timedelta(minutes=5)
 
+        active_auctions = MySQL.Functions.get_active_auctions_table(connection)
+        auction_ids_list = []
+        for auction in active_auctions:
+            auction_ids_list.append(auction.auction_id)
+
     try:
         current_auctions = get_new_auctions(page=0)
     except:
         time.sleep(120)
         continue
-    if current_auctions["success"]:
-        for auction in current_auctions["auctions"]:
-            auction_start_date = QOL.epoch_to_datetime_from_miliseconds(auction["start"])
-            if is_auction_new(time_of_last_checked_item, auction_start_date):
-                insert_item_into_sql_if_it_is_interesting(auction)
-            else:
-                break
-        time_of_last_checked_item = QOL.epoch_to_datetime_from_miliseconds(current_auctions["auctions"][0]["start"])
 
-    time.sleep(2)
+    try:
+        if current_auctions["success"]:
+            for auction in current_auctions["auctions"]:
+                auction_start_date = QOL.epoch_to_datetime_from_miliseconds(auction["start"])
+                if auction["uuid"] not in auction_ids_list:
+                    insert_item_into_sql_if_it_is_interesting(auction)
+                    auction_ids_list.append(auction["uuid"])
+    except Exception as e:
+        print(e)
+        print(current_auctions)
+        break
+
+    time.sleep(30)

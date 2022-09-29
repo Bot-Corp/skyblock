@@ -78,6 +78,6 @@ while True:
             if active_auction.end_date < datetime.datetime.now():
                 print(active_auction.end_date)
                 MySQL.Functions.delete_finished_auction_from_active_auctions(connection, active_auction.auction_id)
-    time.sleep(30)
+    time.sleep(10)
 
 
