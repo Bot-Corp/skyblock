@@ -17,9 +17,17 @@ class MySQL:
             end_date: datetime
             extra_info: str
             amount: int
+            BIN: bool = True
 
         @dataclass
-        class FinishedAuctionItem(ActiveAuctionItem):
+        class FinishedAuctionItem:
+            auction_id: str
+            item_name: str
+            price: int
+            start_date: datetime
+            end_date: datetime
+            extra_info: str
+            amount: int
             buyer: str
             seller: str
 
