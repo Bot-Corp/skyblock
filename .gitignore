@@ -1,3 +1,3 @@
 .idea/
-utils/__pycache__/
+auction-house/utils/__pycache__/
 tests.py

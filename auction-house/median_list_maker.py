@@ -5,7 +5,7 @@ from utils.active_auctions_utils import ActiveAuctions
 
 
 def get_good_items_list(connection):
-    read_query = 'SELECT item_name FROM finished_auctions WHERE item_name NOT LIKE "%Enchanted" GROUP BY item_name HAVING COUNT(*) >= 450 ORDER BY COUNT(*) ASC;'
+    read_query = 'SELECT item_name FROM finished_auctions WHERE item_name NOT LIKE "%Enchanted" GROUP BY item_name HAVING COUNT(*) >= 60 ORDER BY COUNT(*) ASC;'
     names = MySQL.Functions.read_query(connection, read_query)
     names = ActiveAuctions.Functions.touple_list_to_string_list(names)
     return names

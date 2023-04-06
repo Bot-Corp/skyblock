@@ -43,13 +43,16 @@ class AuctionHouse:
 
         @classmethod
         def __get_attribute_shard_enchant(cls, item_bytes) -> str:
-            data = AuctionHouse.decode_item_bytes_data(item_bytes)
-            attribute = data.split("TAG_Compound('attributes'): {1 Entries}")[1]
-            attribute = attribute.split("}")[0]
-            attribute = attribute.replace("{", "")
-            attribute = attribute.replace("TAG_Int('", "")
-            attribute = attribute.replace("'):", "")
-            attribute = attribute.strip()
+            try:
+                data = AuctionHouse.decode_item_bytes_data(item_bytes)
+                attribute = data.split("TAG_Compound('attributes'): {1 Entries}")[1]
+                attribute = attribute.split("}")[0]
+                attribute = attribute.replace("{", "")
+                attribute = attribute.replace("TAG_Int('", "")
+                attribute = attribute.replace("'):", "")
+                attribute = attribute.strip()
+            except Exception as e:
+                return ""
 
             return attribute.capitalize()
 

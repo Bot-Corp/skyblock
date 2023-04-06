@@ -32,13 +32,13 @@ while True:
             for auction in current_auctions["auctions"]:
                 auction = ActiveAuctions.Functions.change_active_auction_dict_to_class(auction)
                 if auction.auction_id not in auction_ids_list:
-
                     if ActiveAuctions.Functions.is_item_interesting(auction):
                         if auction.item_name in items_to_bid:
                             median = ActiveAuctions.Functions.get_item_median_price(connection, auction.item_name)
-                            if auction.price / auction.amount <= median * 0.8 or \
+                            if median/(auction.price / auction.amount) >= 1.4 or \
                                     median - (auction.price / auction.amount) >= 10000000:
                                 print(auction.item_name, "coins:", auction.price, "median:", median, "amount:", auction.amount, "stack price:", median*auction.amount)
+                                print("profit:", median/(auction.price / auction.amount))
                                 print(f"/viewauction {auction.auction_id}")
 
                     is_inserted = ActiveAuctions.Functions.insert_item_into_sql_if_it_is_interesting(connection, auction)
